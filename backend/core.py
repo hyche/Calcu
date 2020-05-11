@@ -12,7 +12,13 @@ class BigInt:
             if x == y:
                 continue
             return x < y
-        return False
+        return True
+
+    def _strip_result(self, result):
+        result = result.lstrip('0')
+        if result == '':
+            result = '0'
+        return result
 
     def __str__(self):
         if not self.is_positive:
@@ -47,7 +53,7 @@ class BigInt:
             result = str(value % 10) + result
         if carry > 0:
             result = '1' + result
-        return BigInt(result.lstrip('0'), (self.is_positive and other.is_positive) or
+        return BigInt(self._strip_result(result), (self.is_positive and other.is_positive) or
                       (not self.is_positive and other.is_positive and is_smaller) or
                       (self.is_positive and not other.is_positive and not is_smaller))
 
@@ -55,7 +61,23 @@ class BigInt:
         return self + BigInt(other.value, not other.is_positive)
 
     def __mul__(self, other):
-        return BigInt(0, self.is_positive == other.is_positive)
+        length1 = len(self.value)
+        length2 = len(other.value)
+        result = [0] * (length1 + length2)
+        for i, x in enumerate(self.value[::-1]):
+            x = int(x)
+            carry = 0
+            for j, y in enumerate(other.value[::-1]):
+                y = int(y)
+                multi = x * y + result[i + j] + carry
+                carry = multi // 10
+                result[i + j] = multi % 10
+            result[i + len(other.value)] += carry
+        s = ''
+        for n in result[::-1]:
+            s += str(n)
+        s = self._strip_result(s)
+        return BigInt(s, self.is_positive == other.is_positive or s == '0')
 
     def __iadd__(self, other):
         return self + other
