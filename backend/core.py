@@ -1,6 +1,10 @@
 from itertools import zip_longest
 
 
+class InvalidExpression(Exception):
+    pass
+
+
 class BigInt:
     def __init__(self, value, is_positive):
         self.value = value
@@ -148,14 +152,14 @@ class Parser:
                 self._next_char()
             result = BigInt(self.expr[start_pos:self.pos], is_positive=is_positive)
         else:
-            raise Exception()
+            raise InvalidExpression(f"Invalid math expression containing '{self.char}'")
         return result
 
     def parse(self):
         self._next_char()
         result = self._parse_expression()
         if self.pos < len(self.expr):
-            raise Exception()
+            raise InvalidExpression('Incomplete expression!')
         return result
 
 
