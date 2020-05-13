@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  api-server:
+    image: alps:be-0.1.0
+    build: ./server
+    container_name: calcu-api-server
+    environment:
+      - FLASK_APP=backend/app.py
+    command: bash -c 'flask run'
+    ports:
+      - '5000:5000'
+    restart:                 unless-stopped
+
+  frontend:
+    image: alps:fe-0.1.0
+    build: ./frontend
+    container_name: calcu-frontend
+    command: sh -c 'npm run build && serve -l 3000 -s build'
+    ports:
+      - '3000:3000'
+    restart:                 unless-stopped
